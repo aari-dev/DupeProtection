@@ -2,6 +2,7 @@ package dev.aari.antidupe.listeners;
 
 import dev.aari.antidupe.config.ConfigManager;
 import dev.aari.antidupe.data.ItemRegistry;
+import dev.aari.antidupe.managers.DupeDebugManager;
 import dev.aari.antidupe.util.ItemIdentifier;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
@@ -17,6 +18,7 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -24,11 +26,13 @@ public final class ItemTrackingListener implements Listener {
 
     private final ItemRegistry itemRegistry;
     private final ConfigManager configManager;
+    private final DupeDebugManager dupeDebugManager;
     private final Object2LongMap<String> lastActionTime;
 
-    public ItemTrackingListener(ItemRegistry itemRegistry, ConfigManager configManager) {
+    public ItemTrackingListener(ItemRegistry itemRegistry, ConfigManager configManager, DupeDebugManager dupeDebugManager) {
         this.itemRegistry = itemRegistry;
         this.configManager = configManager;
+        this.dupeDebugManager = dupeDebugManager;
         this.lastActionTime = new Object2LongOpenHashMap<>(256);
         this.lastActionTime.defaultReturnValue(0L);
     }
@@ -159,8 +163,19 @@ public final class ItemTrackingListener implements Listener {
     private void trackItemAsync(ItemStack item, String action, String playerName) {
         if (item == null || item.getType().isAir()) return;
 
-        CompletableFuture.runAsync(() ->
-                itemRegistry.registerItem(item, action, playerName));
+        CompletableFuture.runAsync(() -> {
+            long itemId = itemRegistry.registerItem(item, action, playerName);
+            if (itemId != -1L) {
+                checkForDuplicates(itemId, playerName);
+            }
+        });
+    }
+
+    private void checkForDuplicates(long itemId, String playerName) {
+        List<ItemRegistry.TrackedItem> duplicates = itemRegistry.findDuplicates(itemId);
+        if (!duplicates.isEmpty()) {
+            dupeDebugManager.broadcastDupeAlert(playerName, itemId, duplicates.size());
+        }
     }
 
     public void cleanup() {

@@ -1,4 +1,5 @@
-
+# AntiDupe Configuration
+# Color Theme: &#FF0000 (Red) for errors/warnings, &#AAFF00 (Green) for success/info
 
 messages:
   # General Messages
@@ -11,29 +12,69 @@ messages:
 
   # ID Command Messages
   item-id: "&#AAFF00Item ID: &#FF0000{id}"
-  duplicates-warning: "&#FF0000&lWARNING:&r&##FF0000{count} potential duplicates found!"
+  duplicates-warning: "&#FF0000&lWARNING:&r &#FF0000{count} potential duplicates found!"
   error-checking: "&#FF0000Error checking item."
   usage-id: "&#FF0000Usage: /id check | /id lookup <id>"
 
   # Lookup Messages
-  original-item: "&#747d8cOriginal Item &#ffa502{id} &#747d8ccreated by &#ffffff{creator}"
+  original-item: "&#AAFF00Original Item &#FF0000{id} &#AAFF00created by &#AAFF00{creator}"
   no-duplicates: "&#AAFF00No duplicates found."
-  duplicates-found: "&#AAFF00Found &#AAFF00{count} &#FF0000duplicates:"
-  duplicate-entry: "&#AAFF00• ID &FF0000{id} &#AAFF00by &#AAFF00{creator}"
+  duplicates-found: "&#AAFF00Found &#FF0000{count} &#FF0000duplicates:"
+  duplicate-entry: "&#AAFF00• ID &#FF0000{id} &#AAFF00by &#AAFF00{creator}"
   error-lookup: "&#FF0000Error during lookup."
 
   # Item History Messages
   usage-item: "&#FF0000Usage: /item history [id]"
   hold-item-or-specify: "&#FF0000Hold an item or specify ID."
   no-tracking-id: "&#AAFF00Item has no tracking ID."
-  console-specify-id: "&FF0000Console must specify ID."
+  console-specify-id: "&#FF0000Console must specify ID."
   error-history: "&#FF0000Error retrieving history."
   history-for-item: "&#AAFF00History for Item &#FF0000{id}"
   created-by: "&#AAFF00Created: &#AAFF00{time} &#AAFF00by &#AAFF00{creator}"
   no-actions: "&#FF0000No actions recorded."
   actions-header: "&#AAFF00Actions:"
   action-entry: "&#AAFF00• &#AAFF00{time} &#AAFF00- &#FF0000{action} &#AAFF00by &#FF0000{player}"
-  more-actions: "&#747d8c... and &#ffa502{count} &#747d8cmore actions"
+  more-actions: "&#AAFF00... and &#FF0000{count} &#AAFF00more actions"
+
+  # Dupe Alert & Admin Messages
+  dupe-alert: "&#FF0000&lDUPE ALERT: &r&#AAFF00{player} &#FF0000may have duped items! ID: &#FF0000{id} &#FF0000({count} duplicates)"
+  debug-mode-enabled: "&#AAFF00Debug mode &#AAFF00enabled&#AAFF00. ItemIDs will appear in lore."
+  debug-mode-disabled: "&#FF0000Debug mode &#FF0000disabled&#FF0000. Cleaning inventory..."
+  alerts-enabled: "&#AAFF00Dupe alerts &#AAFF00enabled&#AAFF00."
+  alerts-disabled: "&#FF0000Dupe alerts &#FF0000disabled&#FF0000."
+  console-no-debug: "&#FF0000Console cannot use debug mode."
+  console-no-alerts: "&#FF0000Console cannot toggle alerts."
+  console-no-scan: "&#FF0000Console cannot scan inventories."
+  console-no-clean: "&#FF0000Console cannot clean items."
+  console-no-test: "&#FF0000Console cannot test items."
+  player-not-found: "&#FF0000Player not found."
+  scanning-inventory: "&#AAFF00Scanning {player}'s inventory..."
+  scan-complete: "&#AAFF00Scan complete: &#AAFF00{tracked} &#AAFF00tracked items, &#FF0000{suspicious} &#FF0000suspicious items found."
+  suspicious-item: "&#FF0000• {item} &#AAFF00(ID: {id}) - {count} duplicates"
+  debug-info-removed: "&#AAFF00Debug info removed from item."
+  test-results: "&#AAFF00Test Results:"
+  test-item-id: "&#AAFF00Item ID: &#FF0000{id}"
+  test-fingerprint: "&#AAFF00Fingerprint: &#AAFF00{fingerprint}..."
+  test-no-duplicates: "&#AAFF00No duplicates found - item appears legitimate."
+  test-duplicates-found: "&#FF0000WARNING: {count} potential duplicates found!"
+  test-duplicate-entry: "&#AAFF00• ID {id} by {creator}"
+  config-reloaded: "&#AAFF00Configuration reloaded successfully!"
+  admin-help-header: "&#AAFF00AntiDupe Admin Commands:"
+  admin-help-reload: "&#AAFF00• &#AAFF00/antidupe reload &#AAFF00- Reload configuration"
+  admin-help-stats: "&#AAFF00• &#AAFF00/antidupe stats &#AAFF00- Show tracking statistics"
+  admin-help-id: "&#AAFF00• &#AAFF00/id check &#AAFF00- Check item in hand"
+  admin-help-lookup: "&#AAFF00• &#AAFF00/id lookup <id> &#AAFF00- Find duplicates"
+  admin-help-history: "&#AAFF00• &#AAFF00/item history [id] &#AAFF00- Show item history"
+  stats-header: "&#AAFF00Item Tracking Statistics:"
+  stats-total: "&#AAFF00Total tracked items: &#AAFF00{total}"
+  stats-top-header: "&#AAFF00Top item types:"
+  stats-item-entry: "&#AAFF00• &#AAFF00{item}&#AAFF00: &#FF0000{count}"
+  dupe-help-header: "&#AAFF00AntiDupe Debug Commands:"
+  dupe-help-mode: "&#AAFF00• &#AAFF00/dupe mode &#AAFF00- Toggle debug mode (shows ItemIDs in lore)"
+  dupe-help-alerts: "&#AAFF00• &#AAFF00/dupe alerts &#AAFF00- Toggle dupe alert notifications"
+  dupe-help-scan: "&#AAFF00• &#AAFF00/dupe scan [player] &#AAFF00- Scan inventory for duplicates"
+  dupe-help-clean: "&#AAFF00• &#AAFF00/dupe clean &#AAFF00- Remove debug info from held item"
+  dupe-help-test: "&#AAFF00• &#AAFF00/dupe test &#AAFF00- Test dupe detection on held item"
 
 # Plugin Settings
 settings:
@@ -45,3 +86,6 @@ settings:
 
   # Chance (1 in N) to track inventory click events to reduce overhead
   inventory-scan-chance: 20
+
+  # Enable automatic broadcast alerts when duplicates are detected
+  broadcast-alerts: true

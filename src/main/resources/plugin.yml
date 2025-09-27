@@ -7,6 +7,12 @@ commands:
     permission: antidupe.admin
   item:
     permission: antidupe.admin
+  antidupe:
+    permission: antidupe.admin
+  dupe:
+    permission: antidupe.admin
 permissions:
   antidupe.admin:
+    default: op
+  antidupe.alerts:
     default: op
