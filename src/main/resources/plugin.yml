@@ -1,0 +1,12 @@
+name: AntiDupe
+version: '1.0.0'
+main: dev.aari.antidupe.AntiDupe
+api-version: '1.21'
+commands:
+  id:
+    permission: antidupe.admin
+  item:
+    permission: antidupe.admin
+permissions:
+  antidupe.admin:
+    default: op

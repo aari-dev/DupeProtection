@@ -1,0 +1,47 @@
+
+
+messages:
+  # General Messages
+  no-permission: "&#FF0000No permission."
+  console-cannot-check: "&#FF0000Console cannot check items."
+  hold-item: "&#FF0000Hold an item to check."
+  invalid-item: "&#FF0000Invalid item."
+  item-not-found: "&#FF0000Item not found."
+  invalid-id-format: "&#FF0000Invalid ID format."
+
+  # ID Command Messages
+  item-id: "&#AAFF00Item ID: &#FF0000{id}"
+  duplicates-warning: "&#FF0000&lWARNING:&r&##FF0000{count} potential duplicates found!"
+  error-checking: "&#FF0000Error checking item."
+  usage-id: "&#FF0000Usage: /id check | /id lookup <id>"
+
+  # Lookup Messages
+  original-item: "&#747d8cOriginal Item &#ffa502{id} &#747d8ccreated by &#ffffff{creator}"
+  no-duplicates: "&#AAFF00No duplicates found."
+  duplicates-found: "&#AAFF00Found &#AAFF00{count} &#FF0000duplicates:"
+  duplicate-entry: "&#AAFF00• ID &FF0000{id} &#AAFF00by &#AAFF00{creator}"
+  error-lookup: "&#FF0000Error during lookup."
+
+  # Item History Messages
+  usage-item: "&#FF0000Usage: /item history [id]"
+  hold-item-or-specify: "&#FF0000Hold an item or specify ID."
+  no-tracking-id: "&#AAFF00Item has no tracking ID."
+  console-specify-id: "&FF0000Console must specify ID."
+  error-history: "&#FF0000Error retrieving history."
+  history-for-item: "&#AAFF00History for Item &#FF0000{id}"
+  created-by: "&#AAFF00Created: &#AAFF00{time} &#AAFF00by &#AAFF00{creator}"
+  no-actions: "&#FF0000No actions recorded."
+  actions-header: "&#AAFF00Actions:"
+  action-entry: "&#AAFF00• &#AAFF00{time} &#AAFF00- &#FF0000{action} &#AAFF00by &#FF0000{player}"
+  more-actions: "&#747d8c... and &#ffa502{count} &#747d8cmore actions"
+
+# Plugin Settings
+settings:
+  # Milliseconds between tracking actions per player (prevents spam)
+  action-throttle-ms: 100
+
+  # Maximum number of history entries to display
+  max-history-display: 10
+
+  # Chance (1 in N) to track inventory click events to reduce overhead
+  inventory-scan-chance: 20
