@@ -58,6 +58,7 @@ public final class AntiDupe extends JavaPlugin {
         Objects.requireNonNull(getCommand("item")).setExecutor(new ItemCommand(itemRegistry, configManager));
         Objects.requireNonNull(getCommand("antidupe")).setExecutor(new AdminCommand(itemRegistry, configManager));
         Objects.requireNonNull(getCommand("dupe")).setExecutor(new DupeCommand(dupeDebugManager, itemRegistry, configManager));
+        Objects.requireNonNull(getCommand("dupe")).setTabCompleter(new DupeCommand(dupeDebugManager, itemRegistry, configManager));
 
         getSLF4JLogger().info("AntiDupe initialized successfully");
     }

@@ -75,6 +75,13 @@ messages:
   dupe-help-scan: "&#AAFF00• &#AAFF00/dupe scan [player] &#AAFF00- Scan inventory for duplicates"
   dupe-help-clean: "&#AAFF00• &#AAFF00/dupe clean &#AAFF00- Remove debug info from held item"
   dupe-help-test: "&#AAFF00• &#AAFF00/dupe test &#AAFF00- Test dupe detection on held item"
+  dupe-help-delete: "&#AAFF00• &#AAFF00/dupe delete <id> &#AAFF00- Delete all duplicate items by ID"
+
+  # Delete Command Messages
+  console-no-delete: "&#FF0000Console cannot delete items."
+  delete-usage: "&#FF0000Usage: /dupe delete <id>"
+  no-duplicates-to-delete: "&#AAFF00No duplicates found to delete."
+  duplicates-deleted: "&#AAFF00Deleted &#FF0000{count} &#AAFF00duplicate items with ID &#FF0000{id}&#AAFF00."
 
 # Plugin Settings
 settings:

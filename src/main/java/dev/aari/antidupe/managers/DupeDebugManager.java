@@ -138,12 +138,17 @@ public final class DupeDebugManager implements Listener {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
 
-        List<Component> lore = meta.hasLore() ? meta.lore() : new ArrayList<>();
+        List<Component> lore = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
 
-        Component debugInfo = ColorUtil.translateColorCodes("&#747d8c[DEBUG] ID: &#ffa502" + itemId);
+        Component debugInfo = ColorUtil.translateColorCodes("&#AAFF00[DEBUG] ID: &#FF0000" + itemId);
 
-        boolean hasDebugInfo = lore.stream()
-                .anyMatch(line -> line.toString().contains("[DEBUG]"));
+        boolean hasDebugInfo = false;
+        for (Component line : lore) {
+            if (line.toString().contains("[DEBUG]")) {
+                hasDebugInfo = true;
+                break;
+            }
+        }
 
         if (!hasDebugInfo) {
             lore.add(Component.empty());
@@ -159,7 +164,7 @@ public final class DupeDebugManager implements Listener {
         ItemMeta meta = item.getItemMeta();
         if (meta == null || !meta.hasLore()) return;
 
-        List<Component> lore = meta.lore();
+        List<Component> lore = new ArrayList<>(meta.lore());
         List<Component> cleanLore = new ArrayList<>();
 
         for (Component line : lore) {
