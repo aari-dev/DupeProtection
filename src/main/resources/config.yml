@@ -56,7 +56,7 @@ messages:
   test-item-id: "&#AAFF00Item ID: &#FF0000{id}"
   test-fingerprint: "&#AAFF00Fingerprint: &#AAFF00{fingerprint}..."
   test-no-duplicates: "&#AAFF00No duplicates found - item appears legitimate."
-  test-duplicates-found: "&#FF0000WARNING: {count} potential duplicates found!"
+  test-duplicates-found: "&#FF0000&lWARNING: &r&#FF0000{count} potential duplicates found!"
   test-duplicate-entry: "&#AAFF00• ID {id} by {creator}"
   config-reloaded: "&#AAFF00Configuration reloaded successfully!"
   admin-help-header: "&#AAFF00AntiDupe Admin Commands:"
