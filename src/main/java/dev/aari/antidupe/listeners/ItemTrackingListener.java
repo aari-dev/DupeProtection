@@ -4,51 +4,52 @@ import dev.aari.antidupe.config.ConfigManager;
 import dev.aari.antidupe.data.ItemRegistry;
 import dev.aari.antidupe.managers.DupeDebugManager;
 import dev.aari.antidupe.util.ItemIdentifier;
-import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
 public final class ItemTrackingListener implements Listener {
 
+    private static final long THROTTLE_DEFAULT = 1000L;
+    private static final int SCAN_CHANCE = 20;
+
     private final ItemRegistry itemRegistry;
     private final ConfigManager configManager;
-    private final DupeDebugManager dupeDebugManager;
-    private final Object2LongMap<String> lastActionTime;
+    private final Object2LongOpenHashMap<UUID> lastActionTime;
 
-    public ItemTrackingListener(ItemRegistry itemRegistry, ConfigManager configManager, DupeDebugManager dupeDebugManager) {
+    public ItemTrackingListener(ItemRegistry itemRegistry, ConfigManager configManager, DupeDebugManager debugManager) {
         this.itemRegistry = itemRegistry;
         this.configManager = configManager;
-        this.dupeDebugManager = dupeDebugManager;
-        this.lastActionTime = new Object2LongOpenHashMap<>(256);
+        this.lastActionTime = new Object2LongOpenHashMap<>(128);
         this.lastActionTime.defaultReturnValue(0L);
+
+        startCleanupTask();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
+        final Player player = event.getPlayer();
         if (!player.hasPermission("antidupe.admin")) return;
 
         CompletableFuture.runAsync(() -> {
-            for (ItemStack item : player.getInventory().getContents()) {
-                if (item != null && !item.getType().isAir()) {
-                    Long id = ItemIdentifier.getItemId(item);
-                    if (id == null) {
-                        itemRegistry.registerItem(item, "LOGIN_SCAN", player.getName());
-                    }
+            int count = 0;
+            for (final ItemStack item : player.getInventory().getContents()) {
+                if (isValidItem(item) && ItemIdentifier.getItemId(item) == null) {
+                    itemRegistry.registerItem(item, "LOGIN_SCAN", player.getName());
+                    if (++count >= 10) break;
                 }
             }
         });
@@ -56,114 +57,75 @@ public final class ItemTrackingListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-        if (!shouldTrackAction(event.getPlayer().getName())) return;
+        final Player player = event.getPlayer();
+        if (!shouldTrack(player)) return;
 
-        event.getBlock().getDrops(event.getPlayer().getInventory().getItemInMainHand())
-                .forEach(drop -> trackItemAsync(drop, "MINED", event.getPlayer().getName()));
+        final ItemStack tool = player.getInventory().getItemInMainHand();
+        if (isValidItem(tool)) {
+            event.getBlock().getDrops(tool).stream()
+                    .filter(this::isValidItem)
+                    .limit(3)
+                    .forEach(drop -> trackItemAsync(drop, "MINED", player.getName()));
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCraftItem(CraftItemEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!shouldTrackAction(player.getName())) return;
+        if (!shouldTrack(player)) return;
 
-        ItemStack result = event.getCurrentItem();
-        if (result != null && !result.getType().isAir()) {
+        final ItemStack result = event.getCurrentItem();
+        if (isValidItem(result)) {
             trackItemAsync(result, "CRAFTED", player.getName());
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onSmeltItem(FurnaceExtractEvent event) {
-        if (!shouldTrackAction(event.getPlayer().getName())) return;
+        final Player player = event.getPlayer();
+        if (!shouldTrack(player)) return;
 
-        ItemStack result = new ItemStack(event.getItemType(), event.getItemAmount());
-        trackItemAsync(result, "SMELTED", event.getPlayer().getName());
+        final ItemStack result = new ItemStack(event.getItemType(), event.getItemAmount());
+        trackItemAsync(result, "SMELTED", player.getName());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEnchantItem(EnchantItemEvent event) {
-        if (!shouldTrackAction(event.getEnchanter().getName())) return;
-
-        trackItemAsync(event.getItem(), "ENCHANTED", event.getEnchanter().getName());
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        lastActionTime.removeLong(event.getPlayer().getUniqueId());
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onItemPickup(EntityPickupItemEvent event) {
-        if (!(event.getEntity() instanceof Player player)) return;
-        if (!shouldTrackAction(player.getName())) return;
+    private boolean shouldTrack(Player player) {
+        if (ThreadLocalRandom.current().nextInt(SCAN_CHANCE) != 0) return false;
 
-        ItemStack item = event.getItem().getItemStack();
-        Long existingId = ItemIdentifier.getItemId(item);
+        final UUID playerId = player.getUniqueId();
+        final long currentTime = System.currentTimeMillis();
+        final long lastTime = lastActionTime.getLong(playerId);
+        final long throttle = configManager.getLong("settings.action-throttle-ms", THROTTLE_DEFAULT);
 
-        if (existingId != null) {
-            CompletableFuture.runAsync(() ->
-                    itemRegistry.registerItem(item, "PICKED_UP", player.getName()));
-        }
-    }
+        if (currentTime - lastTime < throttle) return false;
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onItemDrop(PlayerDropItemEvent event) {
-        if (!shouldTrackAction(event.getPlayer().getName())) return;
-
-        ItemStack item = event.getItemDrop().getItemStack();
-        Long existingId = ItemIdentifier.getItemId(item);
-
-        if (existingId != null) {
-            CompletableFuture.runAsync(() ->
-                    itemRegistry.registerItem(item, "DROPPED", event.getPlayer().getName()));
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!shouldTrackAction(player.getName())) return;
-
-        ItemStack clicked = event.getCurrentItem();
-        if (clicked != null && !clicked.getType().isAir()) {
-            Long id = ItemIdentifier.getItemId(clicked);
-            int scanChance = configManager.getInt("settings.inventory-scan-chance", 20);
-            if (id != null && ThreadLocalRandom.current().nextInt(scanChance) == 0) {
-                CompletableFuture.runAsync(() ->
-                        itemRegistry.registerItem(clicked, "MOVED", player.getName()));
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onInventoryDrag(InventoryDragEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!shouldTrackAction(player.getName())) return;
-
-        ItemStack dragged = event.getOldCursor();
-        if (dragged != null && !dragged.getType().isAir()) {
-            Long id = ItemIdentifier.getItemId(dragged);
-            if (id != null) {
-                CompletableFuture.runAsync(() ->
-                        itemRegistry.registerItem(dragged, "DRAGGED", player.getName()));
-            }
-        }
-    }
-
-    private boolean shouldTrackAction(String playerName) {
-        long currentTime = System.currentTimeMillis();
-        long lastTime = lastActionTime.getLong(playerName);
-        long throttleMs = configManager.getLong("settings.action-throttle-ms", 100L);
-
-        if (currentTime - lastTime < throttleMs) {
-            return false;
-        }
-
-        lastActionTime.put(playerName, currentTime);
+        lastActionTime.put(playerId, currentTime);
         return true;
     }
 
-    private void trackItemAsync(ItemStack item, String action, String playerName) {
-        if (item == null || item.getType().isAir()) return;
+    private boolean isValidItem(ItemStack item) {
+        return item != null && !item.getType().isAir() && item.getAmount() > 0;
+    }
 
-        CompletableFuture.runAsync(() ->
-                itemRegistry.registerItem(item, action, playerName));
+    private void trackItemAsync(ItemStack item, String action, String playerName) {
+        if (!isValidItem(item)) return;
+
+        CompletableFuture.runAsync(() -> itemRegistry.registerItem(item, action, playerName));
+    }
+
+    private void startCleanupTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                final long threshold = System.currentTimeMillis() - 300_000L;
+                lastActionTime.object2LongEntrySet().removeIf(entry -> entry.getLongValue() < threshold);
+            }
+        }.runTaskTimerAsynchronously(configManager.getPlugin(), 6000L, 6000L);
     }
 
     public void cleanup() {

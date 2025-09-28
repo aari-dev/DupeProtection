@@ -144,4 +144,8 @@ public final class ConfigManager {
         loadConfig();
         plugin.getSLF4JLogger().info("Configuration reloaded");
     }
+
+    public AntiDupe getPlugin() {
+        return plugin;
+    }
 }

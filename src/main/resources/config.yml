@@ -83,6 +83,11 @@ messages:
   no-duplicates-to-delete: "&#AAFF00No duplicates found to delete."
   duplicates-deleted: "&#AAFF00Deleted &#FF0000{count} &#AAFF00duplicate items with ID &#FF0000{id}&#AAFF00."
 
+  # Protection Messages
+  creative-dupe-prevented: "&#FF0000Dupe attempt blocked: {action}"
+  packet-violation-alert: "&#FF0000⚠ PACKET ALERT: &#AAFF00{player} &#FF0000sending suspicious packets! Reason: &#AAFF00{reason}"
+  machine-shulker-alert: "&#FF0000⚠ MACHINE ALERT: Shulker killed by non-player at &#AAFF00{location}"
+
 # Plugin Settings
 settings:
   # Milliseconds between tracking actions per player (prevents spam)
@@ -100,15 +105,34 @@ settings:
   # Minimum number of duplicates required to trigger an alert (1 = any duplicate)
   min-duplicates-for-alert: 1
 
-  # Actions that should NOT trigger dupe alerts (to reduce spam)
+# Plugin Settings - Optimized for Performance
+settings:
+  # Milliseconds between tracking actions per player (higher = better performance)
+  action-throttle-ms: 1000
+
+  # Maximum number of history entries to display (lower = better performance)
+  max-history-display: 5
+
+  # Chance (1 in N) to track inventory events (higher = better performance)
+  inventory-scan-chance: 50
+
+  # Enable automatic broadcast alerts (disable for better performance)
+  broadcast-alerts: true
+
+  # Minimum number of duplicates required to trigger alert
+  min-duplicates-for-alert: 2
+
+  # Actions that should NOT trigger alerts (performance optimization)
   ignored-alert-actions:
     - "LOGIN_SCAN"
     - "DEBUG_SCAN"
     - "MOVED"
+    - "PICKED_UP"
+    - "DROPPED"
 
-# Redis Configuration (Cross-Proxy Support)
+# Redis Configuration (Cross-Proxy Support) - Disabled by default for performance
 redis:
-  # Enable Redis for cross-proxy item tracking
+  # Enable Redis for cross-proxy item tracking (impacts performance)
   enabled: false
 
   # Redis server connection details
@@ -116,15 +140,26 @@ redis:
   port: 6379
   password: ""
   database: 0
-  timeout: 2000
+  timeout: 1000
 
-  # Connection pool settings
+  # Connection pool settings (optimized for performance)
   pool:
-    max-total: 8
-    max-idle: 4
+    max-total: 4
+    max-idle: 2
     min-idle: 1
 
-  # Data expiration settings (seconds)
-  item-expire: 86400      # 24 hours
-  history-expire: 604800  # 7 days
-  max-history: 100        # Max history entries per item
+  # Data expiration settings (seconds) - shorter = better performance
+  item-expire: 43200      # 12 hours (reduced from 24)
+  history-expire: 259200  # 3 days (reduced from 7)
+  max-history: 50         # Max history entries per item (reduced)
+
+# Advanced Protection Settings - Minimal for performance
+protection:
+  # Creative Mode Protections (lightweight)
+  creative-enabled: true               # Master toggle for creative protection
+  notify-admins: true                  # Notify admins of violations
+  log-violations: false                # Log to console (disable for performance)
+
+  # Violation thresholds (higher = less alerts = better performance)
+  max-violations: 10                   # Violations before alert
+  cleanup-interval: 300                # Seconds between cleanup (5 minutes)

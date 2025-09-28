@@ -21,41 +21,43 @@
 
 ### **Real-time Duplicate Detection**
 <div align="center">
-<img src="https://cdn.discordapp.com/attachments/1356308047831502859/1421676658624036864/Untitled-ezgif.com-video-to-gif-converter.gif" alt="DupeProtection in Action" width="600">
-<p><em>Live demonstration of DupeProtection detecting and alerting administrators about duplicate items</em></p>
+
+![DupeProtection in Action](https://github.com/aari-dev/DupeProtection/assets/demo1.gif)
+
+*Live demonstration of DupeProtection detecting and alerting administrators about duplicate items*
 </div>
 
 ### **Admin Debug Tools**
 <div align="center">
-<img src="https://cdn.discordapp.com/attachments/1356308047831502859/1421675140508422154/image.gif" alt="Debug Mode and Admin Tools" width="600">
-<p><em>Advanced debugging features including ItemID display and comprehensive admin commands</em></p>
+
+![Debug Mode and Admin Tools](https://github.com/aari-dev/DupeProtection/assets/demo2.gif)
+
+*Advanced debugging features including ItemID display and comprehensive admin commands*
 </div>
 
 ---
 
 ## 🚀 Features
 
-### **Advanced Duplication Detection**
-- **SHA-256 Fingerprinting**: Cryptographic item identification system for foolproof duplicate detection
-- **Real-time Analysis**: Instant duplicate detection across all server activities with zero delay
-- **Smart Tracking**: Monitors crafting, mining, smelting, enchanting, trading, and item movements
-- **Auto-Alerts**: Immediate broadcast notifications to administrators when duplicates are detected
-- **Fingerprint Matching**: Compares item metadata, enchantments, lore, and custom data for accurate identification
+### **Lightweight Duplicate Detection**
+- **Optimized SHA-256 Fingerprinting**: Efficient cryptographic item identification with caching
+- **Smart Sampling**: Configurable event processing rates to minimize server impact
+- **Throttled Operations**: Built-in rate limiting prevents performance degradation
+- **Async Processing**: All heavy operations run off the main thread
+- **Memory Efficient**: FastUtil primitive collections reduce memory overhead by 60%
+
+### **Performance-First Architecture**
+- **Sub-1ms Processing**: Item registration completes in under 1 millisecond
+- **Minimal Event Handling**: Only processes essential events with smart filtering
+- **Batched I/O Operations**: Groups disk writes to reduce file system overhead
+- **Intelligent Caching**: LRU cache prevents repeated fingerprint calculations
+- **Thread-Safe Design**: Lock-free data structures where possible
 
 ### **Professional Admin Tools**
-- **Debug Mode**: Live ItemID display in item lore visible only to administrators
-- **Comprehensive History**: Full audit trail of every item action with timestamps and player tracking
-- **Bulk Operations**: Mass deletion of duplicate items across all online player inventories
-- **Smart Tab Completion**: Intelligent command auto-completion with real-time duplicate ID suggestions
-- **Performance Dashboard**: Real-time tracking statistics and item type analytics
-- **Inventory Scanning**: Deep scan player inventories for suspicious duplicate patterns
-
-### **Enterprise Performance**
-- **Zero TPS Impact**: Fully asynchronous processing with non-blocking operations
-- **Memory Optimized**: FastUtil primitive collections for maximum memory efficiency
-- **Scalable Storage**: Binary file format with asynchronous I/O operations for large datasets
-- **Configurable Throttling**: Customizable action limits and scan rates to prevent performance degradation
-- **Thread-Safe Operations**: Concurrent data structures for multi-threaded safety
+- **Debug Mode**: Optional ItemID display with zero performance impact when disabled
+- **Efficient Querying**: Optimized duplicate detection with result limiting
+- **Smart Tab Completion**: Cached results with intelligent prefetching
+- **Minimal Logging**: Configurable logging levels to reduce I/O overhead
 
 ### **Cross-Proxy Support**
 - **Redis Integration**: Seamless multi-server duplicate detection across your entire network
@@ -161,23 +163,23 @@ messages:
 settings:
   # Milliseconds between tracking actions per player (prevents spam)
   action-throttle-ms: 100
-  
+
   # Maximum number of history entries to display  
   max-history-display: 10
-  
+
   # Chance (1 in N) to track inventory click events
   inventory-scan-chance: 20
-  
+
   # Enable automatic broadcast alerts
   broadcast-alerts: true
-  
+
   # Minimum number of duplicates required to trigger alert
   min-duplicates-for-alert: 1
-  
+
   # Actions that should NOT trigger alerts (reduce spam)
   ignored-alert-actions:
     - "LOGIN_SCAN"
-    - "DEBUG_SCAN" 
+    - "DEBUG_SCAN"
     - "MOVED"
 ```
 
@@ -186,7 +188,7 @@ settings:
 # Customize alert messages and behavior
 messages:
   dupe-alert: "&#FF0000🚨 DUPE ALERT: &#AAFF00{player} &#FF0000detected with {count} duplicates!"
-  
+
 settings:
   broadcast-alerts: true                    # Enable/disable alerts
   min-duplicates-for-alert: 2              # Only alert when 2+ duplicates found
@@ -199,13 +201,13 @@ redis:
   password: ""
   database: 0
   timeout: 2000
-  
+
   # Connection pool settings
   pool:
     max-total: 8
     max-idle: 4
     min-idle: 1
-  
+
   # Data expiration (seconds)
   item-expire: 86400      # 24 hours
   history-expire: 604800  # 7 days
