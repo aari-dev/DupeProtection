@@ -104,14 +104,14 @@ public final class DupeDebugManager implements Listener {
         Player player = event.getPlayer();
         if (!debugMode.contains(player.getUniqueId())) return;
 
-        ItemStack item = player.getInventory().getItem(event.getNewSlot());
-        if (item == null || item.getType().isAir()) return;
-
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             if (player.isOnline()) {
-                showItemDebugInfo(player, item);
+                ItemStack item = player.getInventory().getItem(event.getNewSlot());
+                if (item != null && !item.getType().isAir()) {
+                    addDebugLore(player, item);
+                }
             }
-        }, 1L);
+        }, 2L);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -120,31 +120,33 @@ public final class DupeDebugManager implements Listener {
         if (!debugMode.contains(player.getUniqueId())) return;
 
         ItemStack item = event.getCurrentItem();
-        if (item == null || item.getType().isAir()) return;
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            if (player.isOnline()) {
-                showItemDebugInfo(player, item);
-            }
-        }, 1L);
+        if (item != null && !item.getType().isAir()) {
+            Bukkit.getScheduler().runTaskLater(plugin, () -> {
+                if (player.isOnline()) {
+                    addDebugLore(player, item);
+                }
+            }, 2L);
+        }
     }
 
-    private void showItemDebugInfo(Player player, ItemStack item) {
+    private void addDebugLore(Player player, ItemStack item) {
         if (!player.hasPermission("antidupe.admin")) return;
 
         Long itemId = ItemIdentifier.getItemId(item);
-        if (itemId == null) return;
+        if (itemId == null) {
+            itemId = plugin.getItemRegistry().registerItem(item, "DEBUG_SCAN", player.getName());
+        }
 
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
 
         List<Component> lore = meta.hasLore() ? new ArrayList<>(meta.lore()) : new ArrayList<>();
 
-        Component debugInfo = ColorUtil.translateColorCodes("&#AAFF00[DEBUG] ID: &#FF0000" + itemId);
-
         boolean hasDebugInfo = false;
-        for (Component line : lore) {
+        for (int i = 0; i < lore.size(); i++) {
+            Component line = lore.get(i);
             if (line.toString().contains("[DEBUG]")) {
+                lore.set(i, ColorUtil.translateColorCodes("&#AAFF00[DEBUG] ID: &#FF0000" + itemId));
                 hasDebugInfo = true;
                 break;
             }
@@ -152,10 +154,11 @@ public final class DupeDebugManager implements Listener {
 
         if (!hasDebugInfo) {
             lore.add(Component.empty());
-            lore.add(debugInfo);
-            meta.lore(lore);
-            item.setItemMeta(meta);
+            lore.add(ColorUtil.translateColorCodes("&#AAFF00[DEBUG] ID: &#FF0000" + itemId));
         }
+
+        meta.lore(lore);
+        item.setItemMeta(meta);
     }
 
     public void removeDebugInfo(ItemStack item) {

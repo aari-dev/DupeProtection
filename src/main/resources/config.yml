@@ -96,3 +96,12 @@ settings:
 
   # Enable automatic broadcast alerts when duplicates are detected
   broadcast-alerts: true
+
+  # Minimum number of duplicates required to trigger an alert (1 = any duplicate)
+  min-duplicates-for-alert: 1
+
+  # Actions that should NOT trigger dupe alerts (to reduce spam)
+  ignored-alert-actions:
+    - "LOGIN_SCAN"
+    - "DEBUG_SCAN"
+    - "MOVED"

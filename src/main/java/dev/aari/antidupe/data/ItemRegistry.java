@@ -67,12 +67,13 @@ public final class ItemRegistry {
 
         if (existingId != null) {
             addItemAction(existingId, action, player);
+            checkForDuplicatesAsync(existingId, player, action);
             return existingId;
         }
 
         long newId = generateUniqueId();
-        TrackedItem tracked = new TrackedItem(newId, ItemIdentifier.createFingerprint(item),
-                System.currentTimeMillis(), player);
+        String fingerprint = ItemIdentifier.createFingerprint(item);
+        TrackedItem tracked = new TrackedItem(newId, fingerprint, System.currentTimeMillis(), player);
 
         synchronized (itemDatabase) {
             itemDatabase.put(newId, tracked);
@@ -84,7 +85,34 @@ public final class ItemRegistry {
         ItemIdentifier.markItem(item, newId);
         persistToDisk();
 
+        checkForDuplicatesAsync(newId, player, action);
+
         return newId;
+    }
+
+    private void checkForDuplicatesAsync(long itemId, String player, String action) {
+        if (!plugin.getConfigManager().getBoolean("settings.broadcast-alerts", true)) {
+            return;
+        }
+
+        List<String> ignoredActions = plugin.getConfigManager().getConfig()
+                .getStringList("settings.ignored-alert-actions");
+        if (ignoredActions.contains(action)) {
+            return;
+        }
+
+        CompletableFuture.runAsync(() -> {
+            List<TrackedItem> duplicates = findDuplicates(itemId);
+            int minDuplicates = plugin.getConfigManager().getInt("settings.min-duplicates-for-alert", 1);
+
+            if (duplicates.size() >= minDuplicates) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    if (plugin.getDupeDebugManager() != null) {
+                        plugin.getDupeDebugManager().broadcastDupeAlert(player, itemId, duplicates.size());
+                    }
+                });
+            }
+        });
     }
 
     public List<TrackedItem> findDuplicates(long itemId) {

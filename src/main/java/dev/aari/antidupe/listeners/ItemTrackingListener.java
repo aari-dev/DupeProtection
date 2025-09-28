@@ -18,7 +18,6 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -163,19 +162,8 @@ public final class ItemTrackingListener implements Listener {
     private void trackItemAsync(ItemStack item, String action, String playerName) {
         if (item == null || item.getType().isAir()) return;
 
-        CompletableFuture.runAsync(() -> {
-            long itemId = itemRegistry.registerItem(item, action, playerName);
-            if (itemId != -1L) {
-                checkForDuplicates(itemId, playerName);
-            }
-        });
-    }
-
-    private void checkForDuplicates(long itemId, String playerName) {
-        List<ItemRegistry.TrackedItem> duplicates = itemRegistry.findDuplicates(itemId);
-        if (!duplicates.isEmpty()) {
-            dupeDebugManager.broadcastDupeAlert(playerName, itemId, duplicates.size());
-        }
+        CompletableFuture.runAsync(() ->
+                itemRegistry.registerItem(item, action, playerName));
     }
 
     public void cleanup() {

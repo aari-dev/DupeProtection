@@ -136,6 +136,10 @@ public final class ConfigManager {
         return config.getString(path, defaultValue);
     }
 
+    public FileConfiguration getConfig() {
+        return config;
+    }
+
     public void reload() {
         loadConfig();
         plugin.getSLF4JLogger().info("Configuration reloaded");
