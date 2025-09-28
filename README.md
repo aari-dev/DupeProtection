@@ -17,6 +17,22 @@
 
 ---
 
+## 🎬 Showcase
+
+### **Real-time Duplicate Detection**
+<div align="center">
+<img src="https://cdn.discordapp.com/attachments/1356308047831502859/1421676658624036864/Untitled-ezgif.com-video-to-gif-converter.gif" alt="DupeProtection in Action" width="600">
+<p><em>Live demonstration of DupeProtection detecting and alerting administrators about duplicate items</em></p>
+</div>
+
+### **Admin Debug Tools**
+<div align="center">
+<img src="https://cdn.discordapp.com/attachments/1356308047831502859/1421675140508422154/image.gif" alt="Debug Mode and Admin Tools" width="600">
+<p><em>Advanced debugging features including ItemID display and comprehensive admin commands</em></p>
+</div>
+
+---
+
 ## 🚀 Features
 
 ### **Advanced Duplication Detection**
@@ -41,11 +57,45 @@
 - **Configurable Throttling**: Customizable action limits and scan rates to prevent performance degradation
 - **Thread-Safe Operations**: Concurrent data structures for multi-threaded safety
 
+### **Cross-Proxy Support**
+- **Redis Integration**: Seamless multi-server duplicate detection across your entire network
+- **Network-wide Alerts**: Administrators receive alerts from all servers in your network
+- **Synchronized Data**: Item tracking and history synchronized across all connected servers
+- **Scalable Architecture**: Support for unlimited servers with minimal performance impact
+
+## 🌐 Network Setup
+
+DupeProtection supports cross-proxy item tracking using Redis for large server networks.
+
+### **Redis Requirements**
+- **Redis Server**: 6.0+ recommended
+- **Network Access**: All servers must be able to connect to Redis
+- **Memory**: ~10MB per 10,000 tracked items
+
+### **Network Configuration**
+Enable Redis in your `config.yml` on all servers:
+
+```yaml
+redis:
+  enabled: true
+  host: "your-redis-server.com"
+  port: 6379
+  password: "your-secure-password"
+  database: 0
+```
+
+### **Benefits of Network Mode**
+- **🌍 Global Tracking**: Items tracked across your entire network
+- **⚡ Instant Alerts**: Duplicate alerts from any server
+- **📊 Network Statistics**: Combined statistics from all servers
+- **🔄 Automatic Sync**: No manual synchronization required
+
 ### **Intelligent Alert System**
 - **Real-time Broadcasts**: Automatic alerts sent to all administrators when duplicates are created
 - **Smart Filtering**: Configurable alert thresholds and ignored actions to reduce spam
 - **Color-Coded Messages**: Fully customizable hex color support for all plugin messages
 - **Permission-Based**: Granular permission system for different administrative levels
+- **Network-wide Notifications**: Cross-proxy alerts when Redis is enabled
 
 ## 📋 Commands
 
@@ -83,6 +133,7 @@
 - **Server Software**: Paper (Spigot not supported)
 - **Java Version**: JDK 21 or higher
 - **RAM**: Minimum 1GB available (recommended: 2GB+)
+- **Redis** (optional): For cross-proxy support
 
 ### **Installation Steps**
 1. **Download** the latest release from [GitHub Releases](https://github.com/aari-dev/DupeProtection/releases)
@@ -139,6 +190,26 @@ messages:
 settings:
   broadcast-alerts: true                    # Enable/disable alerts
   min-duplicates-for-alert: 2              # Only alert when 2+ duplicates found
+
+# Redis Configuration (Cross-Proxy Support)
+redis:
+  enabled: false                            # Enable for multi-server networks
+  host: "localhost"
+  port: 6379
+  password: ""
+  database: 0
+  timeout: 2000
+  
+  # Connection pool settings
+  pool:
+    max-total: 8
+    max-idle: 4
+    min-idle: 1
+  
+  # Data expiration (seconds)
+  item-expire: 86400      # 24 hours
+  history-expire: 604800  # 7 days
+  max-history: 100        # Max history entries per item
 ```
 
 ## 🛠️ Building from Source
