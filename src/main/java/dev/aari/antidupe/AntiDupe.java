@@ -1,12 +1,14 @@
 package dev.aari.antidupe;
 
 import dev.aari.antidupe.commands.AdminCommand;
+import dev.aari.antidupe.commands.AnnounceCommand;
 import dev.aari.antidupe.commands.DupeCommand;
 import dev.aari.antidupe.commands.IdCommand;
 import dev.aari.antidupe.commands.ItemCommand;
 import dev.aari.antidupe.config.ConfigManager;
 import dev.aari.antidupe.data.ItemRegistry;
 import dev.aari.antidupe.listeners.AdvancedProtectionListener;
+import dev.aari.antidupe.listeners.AntiCheatListener;
 import dev.aari.antidupe.listeners.ItemTrackingListener;
 import dev.aari.antidupe.managers.DupeDebugManager;
 import dev.aari.antidupe.redis.RedisManager;
@@ -21,6 +23,7 @@ public final class AntiDupe extends JavaPlugin {
     private ItemRegistry itemRegistry;
     private ItemTrackingListener trackingListener;
     private AdvancedProtectionListener protectionListener;
+    private AntiCheatListener antiCheatListener;
     private DupeDebugManager dupeDebugManager;
     private RedisManager redisManager;
 
@@ -32,6 +35,7 @@ public final class AntiDupe extends JavaPlugin {
         this.dupeDebugManager = new DupeDebugManager(this, configManager);
         this.trackingListener = new ItemTrackingListener(itemRegistry, configManager, dupeDebugManager);
         this.protectionListener = new AdvancedProtectionListener(this, configManager, dupeDebugManager);
+        this.antiCheatListener = new AntiCheatListener(this, configManager, dupeDebugManager);
 
         CompletableFuture.runAsync(() -> itemRegistry.initialize())
                 .thenRun(() -> getServer().getScheduler().runTask(this, this::registerComponents))
@@ -68,11 +72,15 @@ public final class AntiDupe extends JavaPlugin {
         if (protectionListener != null) {
             protectionListener.cleanup();
         }
+        if (antiCheatListener != null) {
+            antiCheatListener.cleanup();
+        }
     }
 
     private void registerComponents() {
         getServer().getPluginManager().registerEvents(trackingListener, this);
         getServer().getPluginManager().registerEvents(protectionListener, this);
+        getServer().getPluginManager().registerEvents(antiCheatListener, this);
         getServer().getPluginManager().registerEvents(dupeDebugManager, this);
 
         Objects.requireNonNull(getCommand("id")).setExecutor(new IdCommand(itemRegistry, configManager));
@@ -80,6 +88,7 @@ public final class AntiDupe extends JavaPlugin {
         Objects.requireNonNull(getCommand("antidupe")).setExecutor(new AdminCommand(itemRegistry, configManager));
         Objects.requireNonNull(getCommand("dupe")).setExecutor(new DupeCommand(dupeDebugManager, itemRegistry, configManager));
         Objects.requireNonNull(getCommand("dupe")).setTabCompleter(new DupeCommand(dupeDebugManager, itemRegistry, configManager));
+        Objects.requireNonNull(getCommand("announce")).setExecutor(new AnnounceCommand(configManager));
 
         getSLF4JLogger().info("AntiDupe initialized successfully");
     }
@@ -100,10 +109,3 @@ public final class AntiDupe extends JavaPlugin {
         return itemRegistry;
     }
 }
-
-/*
-TODO: Optimise the code more, whilst adding the skeleton for new features. Turn this in to a more advanced product rather than vibe coded
-TODO: Add MySQL and SQLite fall backs to the Redis DB without affecting performance
-TODO: Update dupe mode to give the staff "staff settings" to handle dupers
-TODO: Perfect the dupe detection method so we can add auto console punishment with a WebHook alerts system at minimum
- */

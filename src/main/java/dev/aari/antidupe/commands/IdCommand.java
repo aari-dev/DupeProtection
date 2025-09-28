@@ -3,6 +3,7 @@ package dev.aari.antidupe.commands;
 import dev.aari.antidupe.config.ConfigManager;
 import dev.aari.antidupe.data.ItemRegistry;
 import dev.aari.antidupe.util.ItemIdentifier;
+import dev.aari.antidupe.util.SoundUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -28,7 +29,12 @@ public final class IdCommand implements CommandExecutor {
                              @NotNull String label, @NotNull String[] args) {
 
         if (!sender.hasPermission("antidupe.admin")) {
-            sender.sendMessage(configManager.getMessage("no-permission"));
+            if (sender instanceof Player player) {
+                SoundUtil.sendActionBar(player, configManager.getMessage("no-permission"));
+                SoundUtil.playErrorSound(player);
+            } else {
+                sender.sendMessage(configManager.getMessage("no-permission"));
+            }
             return true;
         }
 
@@ -40,7 +46,12 @@ public final class IdCommand implements CommandExecutor {
             return handleLookup(sender, args[1]);
         }
 
-        sender.sendMessage(configManager.getMessage("usage-id"));
+        if (sender instanceof Player player) {
+            SoundUtil.sendActionBar(player, configManager.getMessage("usage-id"));
+            SoundUtil.playErrorSound(player);
+        } else {
+            sender.sendMessage(configManager.getMessage("usage-id"));
+        }
         return true;
     }
 
@@ -52,7 +63,8 @@ public final class IdCommand implements CommandExecutor {
 
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.getType().isAir()) {
-            sender.sendMessage(configManager.getMessage("hold-item"));
+            SoundUtil.sendActionBar(player, configManager.getMessage("hold-item"));
+            SoundUtil.playErrorSound(player);
             return true;
         }
 
@@ -62,18 +74,22 @@ public final class IdCommand implements CommandExecutor {
                     itemRegistry.registerItem(item, "CHECKED", player.getName());
         }).thenAccept(id -> {
             if (id == -1L) {
-                sender.sendMessage(configManager.getMessage("invalid-item"));
+                SoundUtil.sendActionBar(player, configManager.getMessage("invalid-item"));
+                SoundUtil.playErrorSound(player);
                 return;
             }
 
-            sender.sendMessage(configManager.getMessage("item-id", "id", id));
+            player.sendMessage(configManager.getMessage("item-id", "id", id));
+            SoundUtil.playSuccessSound(player);
 
             List<ItemRegistry.TrackedItem> duplicates = itemRegistry.findDuplicates(id);
             if (!duplicates.isEmpty()) {
-                sender.sendMessage(configManager.getMessage("duplicates-warning", "count", duplicates.size()));
+                player.sendMessage(configManager.getMessage("duplicates-warning", "count", duplicates.size()));
+                SoundUtil.playErrorSound(player); // Alert sound for duplicates
             }
         }).exceptionally(throwable -> {
-            sender.sendMessage(configManager.getMessage("error-checking"));
+            SoundUtil.sendActionBar(player, configManager.getMessage("error-checking"));
+            SoundUtil.playErrorSound(player);
             return null;
         });
 
@@ -85,7 +101,12 @@ public final class IdCommand implements CommandExecutor {
         try {
             id = Long.parseLong(idStr);
         } catch (NumberFormatException e) {
-            sender.sendMessage(configManager.getMessage("invalid-id-format"));
+            if (sender instanceof Player player) {
+                SoundUtil.sendActionBar(player, configManager.getMessage("invalid-id-format"));
+                SoundUtil.playErrorSound(player);
+            } else {
+                sender.sendMessage(configManager.getMessage("invalid-id-format"));
+            }
             return true;
         }
 
@@ -93,7 +114,12 @@ public final class IdCommand implements CommandExecutor {
                 .thenAccept(duplicates -> {
                     ItemRegistry.TrackedItem original = itemRegistry.getItem(id);
                     if (original == null) {
-                        sender.sendMessage(configManager.getMessage("item-not-found"));
+                        if (sender instanceof Player player) {
+                            SoundUtil.sendActionBar(player, configManager.getMessage("item-not-found"));
+                            SoundUtil.playErrorSound(player);
+                        } else {
+                            sender.sendMessage(configManager.getMessage("item-not-found"));
+                        }
                         return;
                     }
 
@@ -102,6 +128,9 @@ public final class IdCommand implements CommandExecutor {
 
                     if (duplicates.isEmpty()) {
                         sender.sendMessage(configManager.getMessage("no-duplicates"));
+                        if (sender instanceof Player player) {
+                            SoundUtil.playSuccessSound(player);
+                        }
                     } else {
                         sender.sendMessage(configManager.getMessage("duplicates-found", "count", duplicates.size()));
 
@@ -109,10 +138,19 @@ public final class IdCommand implements CommandExecutor {
                             sender.sendMessage(configManager.getMessage("duplicate-entry",
                                     "id", dupe.id(), "creator", dupe.creator()));
                         }
+
+                        if (sender instanceof Player player) {
+                            SoundUtil.playErrorSound(player); // Alert sound for found duplicates
+                        }
                     }
                 })
                 .exceptionally(throwable -> {
-                    sender.sendMessage(configManager.getMessage("error-lookup"));
+                    if (sender instanceof Player player) {
+                        SoundUtil.sendActionBar(player, configManager.getMessage("error-lookup"));
+                        SoundUtil.playErrorSound(player);
+                    } else {
+                        sender.sendMessage(configManager.getMessage("error-lookup"));
+                    }
                     return null;
                 });
 

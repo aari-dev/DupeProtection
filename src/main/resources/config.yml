@@ -85,25 +85,21 @@ messages:
 
   # Protection Messages
   creative-dupe-prevented: "&#FF0000Dupe attempt blocked: {action}"
+  creative-dupe-blocked: "&#FF0000Creative duplication blocked!"
   packet-violation-alert: "&#FF0000⚠ PACKET ALERT: &#AAFF00{player} &#FF0000sending suspicious packets! Reason: &#AAFF00{reason}"
   machine-shulker-alert: "&#FF0000⚠ MACHINE ALERT: Shulker killed by non-player at &#AAFF00{location}"
 
-# Plugin Settings
-settings:
-  # Milliseconds between tracking actions per player (prevents spam)
-  action-throttle-ms: 100
+  # AntiCheat Messages
+  high-cps-detected: "&#FF0000High CPS detected: {cps} clicks/second"
+  flight-not-allowed: "&#FF0000Flight is not allowed!"
+  ghost-block-detected: "&#FF0000Ghost block detected - teleporting to safety"
+  suspicious-movement: "&#FF0000Suspicious movement detected"
+  crystal-aura-detected: "&#FF0000Crystal Aura detected - exploit blocked!"
+  impossible-reach: "&#FF0000Impossible reach distance detected!"
 
-  # Maximum number of history entries to display
-  max-history-display: 10
-
-  # Chance (1 in N) to track inventory click events to reduce overhead
-  inventory-scan-chance: 20
-
-  # Enable automatic broadcast alerts when duplicates are detected
-  broadcast-alerts: true
-
-  # Minimum number of duplicates required to trigger an alert (1 = any duplicate)
-  min-duplicates-for-alert: 1
+  # Announcement Messages
+  announce-usage: "&#FF0000Usage: /announce <message>"
+  announcement-sent: "&#AAFF00Announcement sent to all players"
 
 # Plugin Settings - Optimized for Performance
 settings:
@@ -133,7 +129,7 @@ settings:
 # Redis Configuration (Cross-Proxy Support) - Disabled by default for performance
 redis:
   # Enable Redis for cross-proxy item tracking (impacts performance)
-  enabled: false
+  enabled: true
 
   # Redis server connection details
   host: "localhost"
@@ -163,3 +159,31 @@ protection:
   # Violation thresholds (higher = less alerts = better performance)
   max-violations: 10                   # Violations before alert
   cleanup-interval: 300                # Seconds between cleanup (5 minutes)
+
+# AntiCheat Settings
+anticheat:
+  # CPS Detection
+  cps-detection: true                  # Enable click-per-second detection
+  max-cps: 15                         # Maximum allowed CPS
+
+  # Crystal Aura Detection
+  crystal-aura-detection: true         # Detect crystal aura exploits
+  crystal-threshold: 200               # Milliseconds between crystal interactions
+  crystal-violations: 3                # Violations before punishment
+
+  # Combat Analysis
+  reach-detection: true                # Detect impossible reach distances
+  max-reach: 6.0                      # Maximum reach distance (blocks)
+
+  # Movement Analysis
+  movement-analysis: true              # Enable movement pattern analysis
+  ghost-block-detection: true          # Detect ghost block exploitation
+  flight-detection: true               # Detect unauthorized flight
+
+  # Creative Protection
+  creative-protection: true            # Enhanced creative mode protection
+
+  # Violation Handling
+  log-violations: true                 # Log violations to console
+  punishment-command: ""               # Command to execute on max violations (empty = disabled)
+  # Example: "tempban {player} 10m AutoCheat: {type}"

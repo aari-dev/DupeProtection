@@ -49,7 +49,7 @@ public final class ItemTrackingListener implements Listener {
             for (final ItemStack item : player.getInventory().getContents()) {
                 if (isValidItem(item) && ItemIdentifier.getItemId(item) == null) {
                     itemRegistry.registerItem(item, "LOGIN_SCAN", player.getName());
-                    if (++count >= 10) break;
+                    if (++count >= 10) break; // Limit login scanning
                 }
             }
         });
@@ -64,7 +64,7 @@ public final class ItemTrackingListener implements Listener {
         if (isValidItem(tool)) {
             event.getBlock().getDrops(tool).stream()
                     .filter(this::isValidItem)
-                    .limit(3)
+                    .limit(3) // Limit drops processed
                     .forEach(drop -> trackItemAsync(drop, "MINED", player.getName()));
         }
     }
@@ -122,7 +122,7 @@ public final class ItemTrackingListener implements Listener {
         new BukkitRunnable() {
             @Override
             public void run() {
-                final long threshold = System.currentTimeMillis() - 300_000L;
+                final long threshold = System.currentTimeMillis() - 300_000L; // 5 minutes
                 lastActionTime.object2LongEntrySet().removeIf(entry -> entry.getLongValue() < threshold);
             }
         }.runTaskTimerAsynchronously(configManager.getPlugin(), 6000L, 6000L);

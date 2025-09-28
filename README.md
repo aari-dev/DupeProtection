@@ -35,6 +35,8 @@
 *Advanced debugging features including ItemID display and comprehensive admin commands*
 </div>
 
+> **Note**: Create a `assets` folder in your repository and upload the GIFs there, or use GitHub's issue attachment feature to get permanent URLs.
+
 ---
 
 ## 🚀 Features
@@ -163,23 +165,23 @@ messages:
 settings:
   # Milliseconds between tracking actions per player (prevents spam)
   action-throttle-ms: 100
-
+  
   # Maximum number of history entries to display  
   max-history-display: 10
-
+  
   # Chance (1 in N) to track inventory click events
   inventory-scan-chance: 20
-
+  
   # Enable automatic broadcast alerts
   broadcast-alerts: true
-
+  
   # Minimum number of duplicates required to trigger alert
   min-duplicates-for-alert: 1
-
+  
   # Actions that should NOT trigger alerts (reduce spam)
   ignored-alert-actions:
     - "LOGIN_SCAN"
-    - "DEBUG_SCAN"
+    - "DEBUG_SCAN" 
     - "MOVED"
 ```
 

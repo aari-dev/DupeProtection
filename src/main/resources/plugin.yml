@@ -11,8 +11,14 @@ commands:
     permission: antidupe.admin
   dupe:
     permission: antidupe.admin
+  announce:
+    permission: antidupe.announce
 permissions:
   antidupe.admin:
     default: op
   antidupe.alerts:
     default: op
+  antidupe.announce:
+    default: op
+  antidupe.bypass.flight:
+    default: false
