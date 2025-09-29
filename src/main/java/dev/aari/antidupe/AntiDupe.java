@@ -109,3 +109,19 @@ public final class AntiDupe extends JavaPlugin {
         return itemRegistry;
     }
 }
+/*
+TODO: Remove console spam (temp) and add final webhook logging
+TODO: Clean up the code, this has potential. Take the proj more serious
+TODO: Add punishment system, staff commands, chat filter, @mentions in chat, OP whitelist
+TODO: Expand from AntiDupe/Light AC to advanced staff & security plugin
+TODO: Advanced staff sys includes staff mode, chat moderation, punishments, utils
+TODO: Add a /discord, /media, /trim (/hex), /sign {message}, /baltop, /giveawy {amount}, basic utils but advanced
+TODO: Create license system (for future when all features added)
+TODO: Advertise & make .png description for BBB
+TODO: GIF previews of the plugin
+TODO: /media add|remove , /staff add|promote|demote|remove , /rank add|remove {rank}
+TODO: Add warps, /setspawn , /spawn, /setpvp, /pvp
+TODO: Add simple features such as cookie clicker
+TODO: Make all of the above toggleable and configureable, essentially making a core but with more security and utility based features.
+TODO: Make the config not look like a 5 years olds ass
+ */

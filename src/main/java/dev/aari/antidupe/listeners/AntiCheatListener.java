@@ -6,6 +6,7 @@ import dev.aari.antidupe.managers.DupeDebugManager;
 import dev.aari.antidupe.util.SoundUtil;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +16,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -31,13 +31,13 @@ import java.util.UUID;
 
 public final class AntiCheatListener implements Listener {
 
-    private static final int MAX_CPS = 15;
+    private static final int MAX_CPS = 20;
     private static final long CPS_WINDOW = 1000L;
-    private static final long CRYSTAL_THRESHOLD = 200L;
-    private static final long GHOST_BLOCK_THRESHOLD = 500L;
-    private static final int MAX_VIOLATIONS = 5;
-    private static final int MAX_CRYSTAL_VIOLATIONS = 3;
-    private static final double MAX_REACH = 6.0;
+    private static final long CRYSTAL_THRESHOLD = 150L;
+    private static final long GHOST_BLOCK_THRESHOLD = 1000L;
+    private static final int MAX_VIOLATIONS = 3;
+    private static final double MAX_REACH = 7.0;
+    private static final int MAX_CRYSTAL_VIOLATIONS = 2;
 
     private final AntiDupe plugin;
     private final ConfigManager config;
@@ -58,15 +58,18 @@ public final class AntiCheatListener implements Listener {
         this.config = config;
         this.debugManager = debugManager;
 
-        this.clickCounts = new Object2IntOpenHashMap<>(64);
-        this.lastClickTime = new Object2LongOpenHashMap<>(64);
-        this.lastMoveTime = new Object2LongOpenHashMap<>(64);
-        this.lastCrystalInteract = new Object2LongOpenHashMap<>(32);
-        this.lastBlockPlace = new Object2LongOpenHashMap<>(32);
-        this.lastEntityAttack = new Object2LongOpenHashMap<>(32);
-        this.violations = new Object2IntOpenHashMap<>(32);
-        this.crystalViolations = new Object2IntOpenHashMap<>(16);
-        this.lastGhostCheck = new Object2LongOpenHashMap<>(32);
+        final int playerCount = Bukkit.getMaxPlayers();
+        final int capacity = Math.max(16, playerCount / 4);
+
+        this.clickCounts = new Object2IntOpenHashMap<>(capacity);
+        this.lastClickTime = new Object2LongOpenHashMap<>(capacity);
+        this.lastMoveTime = new Object2LongOpenHashMap<>(capacity);
+        this.lastCrystalInteract = new Object2LongOpenHashMap<>(capacity / 2);
+        this.lastBlockPlace = new Object2LongOpenHashMap<>(capacity / 2);
+        this.lastEntityAttack = new Object2LongOpenHashMap<>(capacity / 2);
+        this.violations = new Object2IntOpenHashMap<>(capacity / 4);
+        this.crystalViolations = new Object2IntOpenHashMap<>(capacity / 4);
+        this.lastGhostCheck = new Object2LongOpenHashMap<>(capacity / 2);
 
         this.clickCounts.defaultReturnValue(0);
         this.lastClickTime.defaultReturnValue(0L);

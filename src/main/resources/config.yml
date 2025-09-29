@@ -129,7 +129,7 @@ settings:
 # Redis Configuration (Cross-Proxy Support) - Disabled by default for performance
 redis:
   # Enable Redis for cross-proxy item tracking (impacts performance)
-  enabled: true
+  enabled: false
 
   # Redis server connection details
   host: "localhost"
@@ -164,26 +164,26 @@ protection:
 anticheat:
   # CPS Detection
   cps-detection: true                  # Enable click-per-second detection
-  max-cps: 15                         # Maximum allowed CPS
+  max-cps: 20                         # Maximum allowed CPS (increased)
 
-  # Crystal Aura Detection
+  # Crystal Aura Detection (CRITICAL for dupe prevention)
   crystal-aura-detection: true         # Detect crystal aura exploits
-  crystal-threshold: 200               # Milliseconds between crystal interactions
+  crystal-threshold: 150               # Milliseconds between crystal interactions (optimized)
   crystal-violations: 3                # Violations before punishment
 
   # Combat Analysis
   reach-detection: true                # Detect impossible reach distances
-  max-reach: 6.0                      # Maximum reach distance (blocks)
+  max-reach: 7.0                      # Maximum reach distance (blocks)
 
   # Movement Analysis
   movement-analysis: true              # Enable movement pattern analysis
   ghost-block-detection: true          # Detect ghost block exploitation
-  flight-detection: true               # Detect unauthorized flight
+  flight-detection: false              # Flight detection disabled
 
   # Creative Protection
   creative-protection: true            # Enhanced creative mode protection
 
   # Violation Handling
-  log-violations: true                 # Log violations to console
-  punishment-command: ""               # Command to execute on max violations (empty = disabled)
+  log-violations: false                # Disable console logging for performance
+  punishment-command: "tempban {player} 10m AutoCheat Caught you lacking!"  # Command to execute on max violations (empty = disabled)
   # Example: "tempban {player} 10m AutoCheat: {type}"
