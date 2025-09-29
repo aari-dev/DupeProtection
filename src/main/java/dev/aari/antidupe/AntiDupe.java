@@ -124,4 +124,5 @@ TODO: Add warps, /setspawn , /spawn, /setpvp, /pvp
 TODO: Add simple features such as cookie clicker
 TODO: Make all of the above toggleable and configureable, essentially making a core but with more security and utility based features.
 TODO: Make the config not look like a 5 years olds ass
+TODO: ChickenCraft pl & ClassicMC gw
  */
